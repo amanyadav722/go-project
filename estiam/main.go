@@ -2,15 +2,27 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"estiam/dictionary"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	dict := dictionary.New("dictionary.json")
+
+	router := mux.NewRouter()
+
+	router.HandleFunc("/word", addWord(dict)).Methods("POST")
+	router.HandleFunc("/word/{word}", getDefinition(dict)).Methods("GET")
+	router.HandleFunc("/word/{word}", deleteWord(dict)).Methods("DELETE")
+
+	http.ListenAndServe(":8080", router)
 
 	for {
 		fmt.Println("Enter command (add, define, remove, list, exit):")
@@ -31,6 +43,58 @@ func main() {
 		default:
 			fmt.Println("Unknown command")
 		}
+	}
+}
+
+func addWord(d *dictionary.Dictionary) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var payload struct {
+			Word       string `json:"word"`
+			Definition string `json:"definition"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if err := d.Add(payload.Word, payload.Definition); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode("Entry added successfully")
+	}
+}
+
+func getDefinition(d *dictionary.Dictionary) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		word := vars["word"]
+
+		definition, err := d.Get(word)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode(definition)
+	}
+}
+
+func deleteWord(d *dictionary.Dictionary) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		word := vars["word"]
+
+		if err := d.Remove(word); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode("Entry deleted successfully")
 	}
 }
 
