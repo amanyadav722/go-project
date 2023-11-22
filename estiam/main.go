@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"estiam/dictionary"
+	"estiam/middleware"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,20 +20,21 @@ func main() {
 
 	router := mux.NewRouter()
 
-	go func() {
-		fmt.Println("Server is running on http://localhost:8081")
-		err := http.ListenAndServe(":8081", router)
-		if err != nil {
-			log.Fatalf("Failed to start server: %v", err)
-		}
-	}()
+	router.Use(middleware.Logger)
+	router.Use(middleware.AuthMiddleware)
 
 	router.HandleFunc("/word", addWord(dict)).Methods("POST")
 	router.HandleFunc("/word/{word}", getDefinition(dict)).Methods("GET")
 	router.HandleFunc("/words", getAllWords(dict)).Methods("GET")
 	router.HandleFunc("/word/{word}", deleteWord(dict)).Methods("DELETE")
 
-	http.ListenAndServe(":8080", router)
+	go func() {
+		fmt.Println("Server is up and running here on http://localhost:8081")
+		err := http.ListenAndServe(":8081", router)
+		if err != nil {
+			log.Fatalf("Failed to start server just go and fix it first: %v", err)
+		}
+	}()
 
 	for {
 		fmt.Println("Enter command (add, define, remove, list, exit):")
@@ -74,7 +76,7 @@ func addWord(d *dictionary.Dictionary) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode("Entry added successfully")
+		json.NewEncoder(w).Encode("Your stuff added successfully")
 	}
 }
 
@@ -118,7 +120,7 @@ func deleteWord(d *dictionary.Dictionary) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode("Entry deleted successfully")
+		json.NewEncoder(w).Encode("Your stuff deleted successfully")
 	}
 }
 
