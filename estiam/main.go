@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"estiam/dictionary"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -18,10 +19,17 @@ func main() {
 
 	router := mux.NewRouter()
 
-	fmt.Println("Server is running on http://localhost:8080")
+	go func() {
+		fmt.Println("Server is running on http://localhost:8081")
+		err := http.ListenAndServe(":8081", router)
+		if err != nil {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
 
 	router.HandleFunc("/word", addWord(dict)).Methods("POST")
 	router.HandleFunc("/word/{word}", getDefinition(dict)).Methods("GET")
+	router.HandleFunc("/words", getAllWords(dict)).Methods("GET")
 	router.HandleFunc("/word/{word}", deleteWord(dict)).Methods("DELETE")
 
 	http.ListenAndServe(":8080", router)
@@ -82,6 +90,20 @@ func getDefinition(d *dictionary.Dictionary) http.HandlerFunc {
 		}
 
 		json.NewEncoder(w).Encode(definition)
+	}
+}
+
+func getAllWords(d *dictionary.Dictionary) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		entries, err := d.GetAll()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := json.NewEncoder(w).Encode(entries); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 

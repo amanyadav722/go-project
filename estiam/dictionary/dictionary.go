@@ -57,6 +57,10 @@ func (d *Dictionary) Get(word string) (string, error) {
 	return definition, nil
 }
 
+func (d *Dictionary) GetAll() (map[string]string, error) {
+	return d.load()
+}
+
 func (d *Dictionary) Remove(word string) error {
 	data, err := d.load()
 	if err != nil {
