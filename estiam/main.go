@@ -18,6 +18,8 @@ func main() {
 
 	router := mux.NewRouter()
 
+	fmt.Println("Server is running on http://localhost:8080")
+
 	router.HandleFunc("/word", addWord(dict)).Methods("POST")
 	router.HandleFunc("/word/{word}", getDefinition(dict)).Methods("GET")
 	router.HandleFunc("/word/{word}", deleteWord(dict)).Methods("DELETE")
