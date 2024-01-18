@@ -66,17 +66,27 @@ func addWord(d *dictionary.Dictionary) http.HandlerFunc {
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+			return
+		}
+
+		if len(payload.Word) < 1 || len(payload.Word) > 50 {
+			http.Error(w, "The word must be between 1 and 50 characters long", http.StatusBadRequest)
+			return
+		}
+		if len(payload.Definition) < 1 || len(payload.Definition) > 500 {
+			http.Error(w, "The definition must be between 1 and 200 characters long", http.StatusBadRequest)
 			return
 		}
 
 		if err := d.Add(payload.Word, payload.Definition); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Failed to add the word to the dictionary", http.StatusInternalServerError)
+			log.Printf("Add: %v", err)
 			return
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode("Your stuff added successfully")
+		json.NewEncoder(w).Encode("Your word added successfully")
 	}
 }
 

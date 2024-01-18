@@ -24,5 +24,25 @@ func Logger(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
+
+		recorder := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(recorder, r)
+
+		if recorder.status >= 400 {
+			logEntry := fmt.Sprintf("Error: %d - %s %s\n", recorder.status, r.Method, r.URL.Path)
+			if _, err := file.WriteString(logEntry); err != nil {
+				fmt.Println(err)
+			}
+		}
 	})
+}
+
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
 }
