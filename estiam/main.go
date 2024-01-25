@@ -29,7 +29,7 @@ func main() {
 	router.HandleFunc("/word/{word}", deleteWord(dict)).Methods("DELETE")
 
 	go func() {
-		fmt.Println("Server is up and running here on http://localhost:8081")
+		fmt.Println("Server is up and running on http://localhost:8081")
 		err := http.ListenAndServe(":8081", router)
 		if err != nil {
 			log.Fatalf("Failed to start server just go and fix it first: %v", err)

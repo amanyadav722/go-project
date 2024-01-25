@@ -8,4 +8,26 @@
 2023-11-22 16:28:15 - GET /word/test3
 2023-11-22 16:29:09 - GET /word/test3
 2024-01-11 11:08:44 - GET /word/test3
-Error: 401 - GET /word/test3
+2024-01-25 10:05:08 - GET /word/testing
+2024-01-25 10:06:04 - GET /words
+2024-01-25 10:06:31 - GET /words
+2024-01-25 10:07:30 - GET /word/test6
+2024-01-25 10:07:57 - GET /word/test6
+2024-01-25 10:19:23 - GET /words
+Error: 401 - GET /words
+2024-01-25 10:19:54 - GET /words
+2024-01-25 10:20:14 - GET /words
+2024-01-25 10:22:40 - GET /word/testing
+2024-01-25 10:22:46 - DELETE /word/testing
+2024-01-25 10:26:34 - GET /word/test6
+2024-01-25 10:27:31 - GET /word/test6
+2024-01-25 10:27:58 - GET /word/test6
+2024-01-25 10:28:27 - GET /word/test6
+2024-01-25 10:33:27 - GET /word/test6
+2024-01-25 10:33:33 - GET /word/test3
+2024-01-25 10:33:43 - GET /words
+2024-01-25 10:36:14 - POST /word
+2024-01-25 10:36:30 - GET /word/the word
+2024-01-25 10:40:11 - DELETE /word/the word
+2024-01-25 11:28:59 - GET /words
+2024-01-25 12:25:24 - POST /word
